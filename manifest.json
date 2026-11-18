@@ -1,0 +1,19 @@
+
+{
+  "name": "お買い物リスト",
+  "short_name": "買い物リスト",
+  "description": "毎日のお買い物を管理するアプリ",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
