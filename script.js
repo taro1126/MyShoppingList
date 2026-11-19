@@ -10,6 +10,7 @@ const DEFAULT_CATEGORIES = [
 
 let categories = [...DEFAULT_CATEGORIES];
 let showCompleted = localStorage.getItem("showCompletedItems") === "true";
+let collapsedCategories = new Set();
 
 // ドラッグ中の情報
 let activeDrag = null;
@@ -92,6 +93,8 @@ function displayItems() {
     // カテゴリ見出し
     const header = document.createElement("div");
     header.className = "category-header";
+    const isCollapsed = collapsedCategories.has(category);
+    header.setAttribute("aria-expanded", String(!isCollapsed));
 
     const categoryHandle = createDragHandle(
       "category",
@@ -99,9 +102,20 @@ function displayItems() {
       category + "を並び替え"
     );
 
-    const title = document.createElement("div");
+    const title = document.createElement("button");
+    title.type = "button";
     title.className = "category-title";
-    title.textContent = category;
+    title.setAttribute("aria-expanded", String(!isCollapsed));
+    title.setAttribute("aria-label", `${category}を${isCollapsed ? "展開" : "折りたたむ"}`);
+
+    const disclosure = document.createElement("span");
+    disclosure.className = "category-disclosure";
+    disclosure.textContent = isCollapsed ? "▶" : "▼";
+
+    const titleText = document.createElement("span");
+    titleText.textContent = category;
+    title.append(disclosure, titleText);
+    title.addEventListener("click", () => toggleCategory(category));
 
     const categoryControls = document.createElement("div");
     categoryControls.className = "category-controls";
@@ -120,6 +134,7 @@ function displayItems() {
     // 商品一覧
     const itemList = document.createElement("div");
     itemList.className = "item-list";
+    itemList.hidden = isCollapsed;
 
     const allCategoryItems = items.filter(
       item => item.category === category
@@ -203,6 +218,40 @@ function toggleCompletedItems() {
   displayItems();
 }
 
+function toggleCategory(category) {
+  if (collapsedCategories.has(category)) {
+    collapsedCategories.delete(category);
+  } else {
+    collapsedCategories.add(category);
+  }
+
+  saveCollapsedCategories();
+  displayItems();
+}
+
+function saveCollapsedCategories() {
+  localStorage.setItem(
+    "shoppingCollapsedCategories",
+    JSON.stringify([...collapsedCategories])
+  );
+}
+
+function loadCollapsedCategories() {
+  try {
+    const saved = localStorage.getItem("shoppingCollapsedCategories");
+    const loaded = saved ? JSON.parse(saved) : [];
+
+    if (Array.isArray(loaded)) {
+      collapsedCategories = new Set(
+        loaded.filter(category => categories.includes(category))
+      );
+    }
+  } catch (error) {
+    console.error("カテゴリの開閉状態読み込みエラー", error);
+    collapsedCategories = new Set();
+  }
+}
+
 // 商品削除
 function deleteItem(id) {
   if (!confirm("この商品を削除しますか？")) return;
@@ -265,6 +314,11 @@ function renameCategory(oldName) {
   const index = categories.indexOf(oldName);
   categories[index] = trimmedName;
 
+  if (collapsedCategories.delete(oldName)) {
+    collapsedCategories.add(trimmedName);
+    saveCollapsedCategories();
+  }
+
   items.forEach(item => {
     if (item.category === oldName) {
       item.category = trimmedName;
@@ -300,6 +354,8 @@ function deleteCategory(category) {
   });
 
   categories = categories.filter(name => name !== category);
+  collapsedCategories.delete(category);
+  saveCollapsedCategories();
 
   saveCategories();
   saveItems();
@@ -667,5 +723,6 @@ document.getElementById("completedToggle")
 
 loadCategories();
 loadItems();
+loadCollapsedCategories();
 updateCategorySelect();
 displayItems();
