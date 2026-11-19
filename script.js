@@ -9,6 +9,7 @@ const DEFAULT_CATEGORIES = [
 ];
 
 let categories = [...DEFAULT_CATEGORIES];
+let showCompleted = localStorage.getItem("showCompletedItems") === "true";
 
 // ドラッグ中の情報
 let activeDrag = null;
@@ -81,6 +82,7 @@ function createDragHandle(type, id, label) {
 function displayItems() {
   const list = document.getElementById("itemList");
   list.replaceChildren();
+  updateCompletedToggle();
 
   categories.forEach(category => {
     const section = document.createElement("section");
@@ -119,14 +121,19 @@ function displayItems() {
     const itemList = document.createElement("div");
     itemList.className = "item-list";
 
-    const categoryItems = items.filter(
+    const allCategoryItems = items.filter(
       item => item.category === category
     );
+    const categoryItems = showCompleted
+      ? allCategoryItems
+      : allCategoryItems.filter(item => !item.checked);
 
     if (categoryItems.length === 0) {
       const empty = document.createElement("div");
       empty.className = "empty-message";
-      empty.textContent = "商品はありません";
+      empty.textContent = allCategoryItems.length > 0
+        ? "完了済みは非表示です"
+        : "商品はありません";
       itemList.appendChild(empty);
     }
 
@@ -177,6 +184,23 @@ function displayItems() {
     section.append(header, itemList);
     list.appendChild(section);
   });
+}
+
+function updateCompletedToggle() {
+  const button = document.getElementById("completedToggle");
+  if (!button) return;
+
+  const completedCount = items.filter(item => item.checked).length;
+  button.textContent = showCompleted
+    ? `完了を隠す（${completedCount}）`
+    : `完了を表示（${completedCount}）`;
+  button.setAttribute("aria-expanded", String(showCompleted));
+}
+
+function toggleCompletedItems() {
+  showCompleted = !showCompleted;
+  localStorage.setItem("showCompletedItems", String(showCompleted));
+  displayItems();
 }
 
 // 商品削除
@@ -637,6 +661,9 @@ document.getElementById("itemForm")
 
 document.getElementById("addCategoryButton")
   .addEventListener("click", addCategory);
+
+document.getElementById("completedToggle")
+  .addEventListener("click", toggleCompletedItems);
 
 loadCategories();
 loadItems();

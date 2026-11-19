@@ -66,11 +66,19 @@ button:active {
 
 .category-management {
   margin: 16px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .category-management button {
   background: #e8f2ec;
   color: #347653;
+}
+
+.category-management #completedToggle {
+  background: #f0f0f0;
+  color: #555;
 }
 
 .category-section {
