@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <title>お買い物リスト</title>
 
@@ -18,16 +18,18 @@
 
 <body>
   <div class="container">
-    <h1>お買い物リスト</h1>
+    <header class="page-header">
+      <h1>お買い物リスト</h1>
+      <p class="page-subtitle">必要なものを、さっと追加。</p>
+    </header>
 
     <form id="itemForm" class="input-area">
-      <input
+      <textarea
         id="itemInput"
-        type="text"
+        rows="1"
         placeholder="買うものを入力"
-        autocomplete="off"
-      >
-
+        ></textarea>
+      
       <select id="categoryInput" aria-label="カテゴリ">
       </select>
 
@@ -42,6 +44,11 @@
     </div>
 
     <div id="itemList"></div>
+  </div>
+
+  <div id="undoNotice" class="undo-notice" role="status" aria-live="polite" hidden>
+    <span id="undoMessage"></span>
+    <button id="undoButton" type="button">元に戻す</button>
   </div>
 
   <script src="./script.js"></script>

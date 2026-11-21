@@ -11,34 +11,49 @@ const DEFAULT_CATEGORIES = [
 let categories = [...DEFAULT_CATEGORIES];
 let showCompleted = localStorage.getItem("showCompletedItems") === "true";
 let collapsedCategories = new Set();
+const UNDO_DURATION_MS = 5000;
+let pendingUndoItems = [];
+let undoExpiryTimer = null;
 
 // ドラッグ中の情報
 let activeDrag = null;
 
-// 商品追加
+
+// 商品をまとめて登録する処理
+function addItemsFromText(text) {
+  const input = document.getElementById("itemInput");
+  const categoryInput = document.getElementById("categoryInput");
+
+  const names = text
+    .split(/\r?\n/)
+    .map(name => name.trim())
+    .filter(name => name !== "");
+
+  if (names.length === 0) return;
+
+  const category = categoryInput.value;
+
+  names.forEach(name => {
+    items.push({
+      id: createId(),
+      name,
+      checked: false,
+      category
+    });
+  });
+
+  input.value = "";
+  saveItems();
+  displayItems();
+  input.focus();
+}
+
+// 追加ボタンからの登録
 function addItem(event) {
   if (event) event.preventDefault();
 
   const input = document.getElementById("itemInput");
-  const categoryInput = document.getElementById("categoryInput");
-
-  const name = input.value.trim();
-  const category = categoryInput.value;
-
-  if (name === "") return;
-
-  items.push({
-    id: createId(),
-    name,
-    checked: false,
-    category
-  });
-
-  input.value = "";
-
-  saveItems();
-  displayItems();
-  input.focus();
+  addItemsFromText(input.value);
 }
 
 // ID作成
@@ -114,7 +129,17 @@ function displayItems() {
 
     const titleText = document.createElement("span");
     titleText.textContent = category;
-    title.append(disclosure, titleText);
+
+    // カテゴリ内の商品件数
+    const itemCount = document.createElement("span");
+    itemCount.className = "category-count";
+    const categoryItems = items.filter(item => item.category === category);
+    const visibleItemCount = showCompleted
+      ? categoryItems.length
+      : categoryItems.filter(item => !item.checked).length;
+    itemCount.textContent = `（${visibleItemCount}件）`;
+
+    title.append(disclosure, titleText, itemCount);
     title.addEventListener("click", () => toggleCategory(category));
 
     const categoryControls = document.createElement("div");
@@ -136,14 +161,15 @@ function displayItems() {
     itemList.className = "item-list";
     itemList.hidden = isCollapsed;
 
-    const allCategoryItems = items.filter(
-      item => item.category === category
-    );
-    const categoryItems = showCompleted
+    const allCategoryItems = categoryItems;
+    if (allCategoryItems.length === 0) {
+      section.classList.add("category-empty");
+    }
+    const displayedCategoryItems = showCompleted
       ? allCategoryItems
       : allCategoryItems.filter(item => !item.checked);
 
-    if (categoryItems.length === 0) {
+    if (displayedCategoryItems.length === 0) {
       const empty = document.createElement("div");
       empty.className = "empty-message";
       empty.textContent = allCategoryItems.length > 0
@@ -152,7 +178,7 @@ function displayItems() {
       itemList.appendChild(empty);
     }
 
-    categoryItems.forEach(item => {
+    displayedCategoryItems.forEach(item => {
       const row = document.createElement("div");
       row.className = "item-row";
       row.dataset.itemId = item.id;
@@ -186,6 +212,11 @@ function displayItems() {
 
       controls.append(
         createButton(
+          "編集",
+          () => beginEditItem(item, row, name, controls),
+          "edit-button"
+        ),
+        createButton(
           "削除",
           () => deleteItem(item.id),
           "delete-button"
@@ -199,6 +230,46 @@ function displayItems() {
     section.append(header, itemList);
     list.appendChild(section);
   });
+}
+
+function beginEditItem(item, row, nameElement, controls) {
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "item-name-input";
+  input.value = item.name;
+  input.setAttribute("aria-label", "商品名");
+
+  const save = () => {
+    const name = input.value.trim();
+    if (!name) {
+      input.focus();
+      return;
+    }
+
+    item.name = name;
+    saveItems();
+    displayItems();
+  };
+
+  const cancel = () => displayItems();
+
+  input.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      save();
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      cancel();
+    }
+  });
+
+  row.replaceChild(input, nameElement);
+  controls.replaceChildren(
+    createButton("保存", save, "save-button"),
+    createButton("取消", cancel)
+  );
+  input.focus();
+  input.select();
 }
 
 function updateCompletedToggle() {
@@ -254,12 +325,55 @@ function loadCollapsedCategories() {
 
 // 商品削除
 function deleteItem(id) {
-  if (!confirm("この商品を削除しますか？")) return;
+  const index = items.findIndex(item => item.id === id);
+  if (index === -1) return;
 
-  items = items.filter(item => item.id !== id);
+  const [item] = items.splice(index, 1);
+  pendingUndoItems.push({ item, index, expiresAt: Date.now() + UNDO_DURATION_MS });
 
   saveItems();
   displayItems();
+  updateUndoNotice();
+}
+
+function undoDelete() {
+  const now = Date.now();
+  pendingUndoItems = pendingUndoItems.filter(entry => entry.expiresAt > now);
+  const deleted = pendingUndoItems.pop();
+  if (!deleted) {
+    updateUndoNotice();
+    return;
+  }
+
+  const restoreIndex = Math.min(deleted.index, items.length);
+  items.splice(restoreIndex, 0, deleted.item);
+  saveItems();
+  displayItems();
+  updateUndoNotice();
+}
+
+function updateUndoNotice() {
+  const notice = document.getElementById("undoNotice");
+  const message = document.getElementById("undoMessage");
+  if (!notice || !message) return;
+
+  if (undoExpiryTimer) clearTimeout(undoExpiryTimer);
+  const now = Date.now();
+  pendingUndoItems = pendingUndoItems.filter(entry => entry.expiresAt > now);
+
+  if (pendingUndoItems.length === 0) {
+    notice.hidden = true;
+    return;
+  }
+
+  const latest = pendingUndoItems[pendingUndoItems.length - 1].item;
+  message.textContent = pendingUndoItems.length > 1
+    ? `「${latest.name}」など${pendingUndoItems.length}件を削除しました`
+    : `「${latest.name}」を削除しました`;
+  notice.hidden = false;
+
+  const nextExpiry = Math.min(...pendingUndoItems.map(entry => entry.expiresAt));
+  undoExpiryTimer = setTimeout(updateUndoNotice, Math.max(0, nextExpiry - now));
 }
 
 // カテゴリ追加
@@ -506,6 +620,7 @@ function reorderCategories(sourceName, targetName, after) {
   categories.splice(insertIndex, 0, movingCategory);
 
   saveCategories();
+  updateCategorySelect();
 }
 
 // ドラッグ中の見た目を解除
@@ -715,11 +830,39 @@ itemListElement.addEventListener("pointercancel", handlePointerCancel);
 document.getElementById("itemForm")
   .addEventListener("submit", addItem);
 
+
+const itemInput = document.getElementById("itemInput");
+
+// Enterで商品登録
+itemInput.addEventListener("keydown", event => {
+  if (event.key !== "Enter") return;
+
+  // 日本語変換中は登録しない
+  if (event.isComposing || event.keyCode === 229) return;
+
+  event.preventDefault();
+  addItem(event);
+});
+
+// 改行を含むテキストを貼り付けたら一括登録
+itemInput.addEventListener("paste", event => {
+  const text = event.clipboardData?.getData("text");
+
+  if (!text || !/[\r\n]/.test(text)) return;
+
+  event.preventDefault();
+  addItemsFromText(text);
+});
+
+
 document.getElementById("addCategoryButton")
   .addEventListener("click", addCategory);
 
 document.getElementById("completedToggle")
   .addEventListener("click", toggleCompletedItems);
+
+document.getElementById("undoButton")
+  .addEventListener("click", undoDelete);
 
 loadCategories();
 loadItems();
