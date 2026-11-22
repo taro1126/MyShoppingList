@@ -14,6 +14,9 @@ let collapsedCategories = new Set();
 const UNDO_DURATION_MS = 5000;
 let pendingUndoItems = [];
 let undoExpiryTimer = null;
+const COMPLETED_HIDE_DELAY_MS = 1000;
+const pendingCompletedHide = new Set();
+const completedHideTimers = new Map();
 
 // ドラッグ中の情報
 let activeDrag = null;
@@ -72,6 +75,13 @@ function createButton(label, action, className = "") {
 
   if (className) button.className = className;
 
+  return button;
+}
+
+function createIconButton(icon, label, action, className = "") {
+  const button = createButton(icon, action, `icon-button ${className}`.trim());
+  button.setAttribute("aria-label", label);
+  button.title = label;
   return button;
 }
 
@@ -146,9 +156,10 @@ function displayItems() {
     categoryControls.className = "category-controls";
 
     categoryControls.append(
-      createButton("編集", () => renameCategory(category)),
-      createButton(
-        "削除",
+      createIconButton("✎", "カテゴリ名を編集", () => renameCategory(category)),
+      createIconButton(
+        "×",
+        "カテゴリを削除",
         () => deleteCategory(category),
         "delete-category"
       )
@@ -167,7 +178,9 @@ function displayItems() {
     }
     const displayedCategoryItems = showCompleted
       ? allCategoryItems
-      : allCategoryItems.filter(item => !item.checked);
+      : allCategoryItems.filter(
+          item => !item.checked || pendingCompletedHide.has(item.id)
+        );
 
     if (displayedCategoryItems.length === 0) {
       const empty = document.createElement("div");
@@ -195,6 +208,22 @@ function displayItems() {
 
       checkbox.onchange = () => {
         item.checked = checkbox.checked;
+
+        const existingTimer = completedHideTimers.get(item.id);
+        if (existingTimer) clearTimeout(existingTimer);
+
+        if (item.checked) {
+          pendingCompletedHide.add(item.id);
+          completedHideTimers.set(item.id, setTimeout(() => {
+            pendingCompletedHide.delete(item.id);
+            completedHideTimers.delete(item.id);
+            displayItems();
+          }, COMPLETED_HIDE_DELAY_MS));
+        } else {
+          pendingCompletedHide.delete(item.id);
+          completedHideTimers.delete(item.id);
+        }
+
         saveItems();
         displayItems();
       };
@@ -211,13 +240,15 @@ function displayItems() {
       controls.className = "item-controls";
 
       controls.append(
-        createButton(
-          "編集",
+        createIconButton(
+          "✎",
+          "商品名を編集",
           () => beginEditItem(item, row, name, controls),
           "edit-button"
         ),
-        createButton(
-          "削除",
+        createIconButton(
+          "×",
+          "商品を削除",
           () => deleteItem(item.id),
           "delete-button"
         )
@@ -327,6 +358,11 @@ function loadCollapsedCategories() {
 function deleteItem(id) {
   const index = items.findIndex(item => item.id === id);
   if (index === -1) return;
+
+  const completedHideTimer = completedHideTimers.get(id);
+  if (completedHideTimer) clearTimeout(completedHideTimer);
+  completedHideTimers.delete(id);
+  pendingCompletedHide.delete(id);
 
   const [item] = items.splice(index, 1);
   pendingUndoItems.push({ item, index, expiresAt: Date.now() + UNDO_DURATION_MS });

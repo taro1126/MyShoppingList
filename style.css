@@ -261,6 +261,25 @@ button:focus-visible {
   font-weight: 550;
 }
 
+.category-controls .icon-button,
+.item-controls .icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 19px;
+  line-height: 1;
+}
+
+.category-controls .delete-category,
+.item-controls .delete-button {
+  font-size: 22px;
+}
+
 .category-controls button:hover,
 .item-controls button:hover {
   background: #f2f4f1;
