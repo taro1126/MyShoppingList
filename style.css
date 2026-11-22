@@ -308,8 +308,9 @@ button:focus-visible {
   gap: 9px;
   min-height: 52px;
   padding: 9px 13px;
-  border-bottom: 1px solid #f0f2ee;
-  background: var(--surface);
+  border-bottom: 1px solid #dfe8df;
+  border-left: 3px solid #9bb49f;
+  background: #edf3ed;
 }
 
 .category-title {
@@ -358,8 +359,21 @@ button:focus-visible {
 .category-controls,
 .item-controls {
   display: flex;
+  align-items: center;
   flex-shrink: 0;
   gap: 5px;
+}
+
+.category-actions,
+.item-actions {
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.category-actions.actions-open,
+.item-actions.actions-open {
+  display: flex;
 }
 
 .category-controls button,
@@ -386,6 +400,27 @@ button:focus-visible {
   line-height: 1;
 }
 
+.category-controls .actions-toggle,
+.item-controls .actions-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #8a958c;
+  font-size: 21px;
+  line-height: 1;
+}
+
+.category-controls .actions-toggle:hover,
+.item-controls .actions-toggle:hover {
+  background: #e4ebe3;
+  color: #536257;
+}
+
 .category-controls .delete-category,
 .item-controls .delete-button {
   font-size: 22px;
@@ -410,7 +445,7 @@ button:focus-visible {
 
 /* 商品行 */
 .item-list {
-  padding: 0 14px;
+  padding: 0 14px 0 34px;
 }
 
 .item-row {
@@ -437,10 +472,21 @@ button:focus-visible {
   flex: 1;
   min-width: 0;
   padding: 8px 0;
+  border-radius: 4px;
   color: #354139;
   font-size: 14px;
   line-height: 1.5;
   overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.item-name:not(.checked):hover {
+  color: var(--green-dark);
+}
+
+.item-name:focus-visible {
+  outline: 2px solid #a9c2ae;
+  outline-offset: 3px;
 }
 
 .item-name.checked {
@@ -551,9 +597,35 @@ button:focus-visible {
 }
 
 .category-drag-handle {
-  flex-basis: 23px;
-  width: 23px;
+  flex-basis: 28px;
+  width: 28px;
+  border-radius: 8px;
+  background: #dfe9df;
+  color: #68816d;
   font-size: 21px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .category-controls .actions-toggle,
+  .item-controls .actions-toggle {
+    display: none;
+  }
+
+  .category-actions,
+  .item-actions {
+    display: flex;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s, visibility 0.15s;
+  }
+
+  .category-header:hover .category-actions,
+  .category-header:focus-within .category-actions,
+  .item-row:hover .item-actions,
+  .item-row:focus-within .item-actions {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
 .dragging {
@@ -648,7 +720,7 @@ button:focus-visible {
   }
 
   .item-list {
-    padding: 0 9px;
+    padding: 0 9px 0 27px;
   }
 
   .category-empty .item-list {

@@ -85,6 +85,17 @@ function createIconButton(icon, label, action, className = "") {
   return button;
 }
 
+function createActionsToggle(label, actions) {
+  const button = createButton("⋯", () => {
+    const isOpen = actions.classList.toggle("actions-open");
+    button.setAttribute("aria-expanded", String(isOpen));
+  }, "actions-toggle");
+  button.setAttribute("aria-label", `${label}の操作を表示`);
+  button.setAttribute("aria-expanded", "false");
+  button.title = `${label}の操作`;
+  return button;
+}
+
 // ドラッグハンドル作成
 function createDragHandle(type, id, label) {
   const handle = document.createElement("button");
@@ -155,7 +166,9 @@ function displayItems() {
     const categoryControls = document.createElement("div");
     categoryControls.className = "category-controls";
 
-    categoryControls.append(
+    const categoryActions = document.createElement("div");
+    categoryActions.className = "category-actions";
+    categoryActions.append(
       createIconButton("✎", "カテゴリ名を編集", () => renameCategory(category)),
       createIconButton(
         "×",
@@ -163,6 +176,10 @@ function displayItems() {
         () => deleteCategory(category),
         "delete-category"
       )
+    );
+    categoryControls.append(
+      createActionsToggle("カテゴリ", categoryActions),
+      categoryActions
     );
 
     header.append(categoryHandle, title, categoryControls);
@@ -231,6 +248,27 @@ function displayItems() {
       const name = document.createElement("span");
       name.className = "item-name";
       name.textContent = item.name;
+      name.tabIndex = 0;
+      name.setAttribute("role", "button");
+      name.setAttribute("aria-expanded", "false");
+      name.setAttribute("aria-label", `${item.name}の操作を表示`);
+      name.title = "タップして編集・削除を表示";
+
+      const toggleItemActions = () => {
+        const isOpen = itemActions.classList.toggle("actions-open");
+        name.setAttribute("aria-expanded", String(isOpen));
+        name.setAttribute(
+          "aria-label",
+          `${item.name}の操作を${isOpen ? "隠す" : "表示"}`
+        );
+      };
+      name.addEventListener("click", toggleItemActions);
+      name.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggleItemActions();
+        }
+      });
 
       if (item.checked) {
         name.classList.add("checked");
@@ -239,11 +277,13 @@ function displayItems() {
       const controls = document.createElement("div");
       controls.className = "item-controls";
 
-      controls.append(
+      const itemActions = document.createElement("div");
+      itemActions.className = "item-actions";
+      itemActions.append(
         createIconButton(
           "✎",
           "商品名を編集",
-          () => beginEditItem(item, row, name, controls),
+          () => beginEditItem(item, row, name, itemActions),
           "edit-button"
         ),
         createIconButton(
@@ -253,6 +293,7 @@ function displayItems() {
           "delete-button"
         )
       );
+      controls.append(itemActions);
 
       row.append(itemHandle, checkbox, name, controls);
       itemList.appendChild(row);
