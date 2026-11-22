@@ -39,6 +39,13 @@ body {
   margin: 8px 4px 25px;
 }
 
+.page-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
 h1 {
   margin: 0;
   color: var(--ink);
@@ -54,6 +61,110 @@ h1 {
   color: var(--muted);
   font-size: 13px;
   letter-spacing: 0.02em;
+}
+
+.help-details {
+  position: relative;
+  flex: 0 0 auto;
+  z-index: 5;
+}
+
+.help-details > summary {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid #e2e8e1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  color: #728176;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.help-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.help-details > summary:hover,
+.help-details[open] > summary {
+  border-color: #cbd9cc;
+  background: var(--green-pale);
+  color: var(--green-dark);
+}
+
+.help-details > summary:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+.help-content {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(350px, calc(100vw - 32px));
+  max-height: min(70vh, 520px);
+  overflow: auto;
+  padding: 19px 20px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface);
+  box-shadow: 0 12px 34px rgba(35, 52, 40, 0.16);
+  color: var(--ink);
+}
+
+.help-content h2,
+.help-content h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.help-content ul {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 16px;
+  padding-left: 19px;
+  color: #5d695f;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.app-version {
+  display: flex;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.app-version strong {
+  color: var(--green-dark);
+  font-weight: 700;
+}
+
+.help-content h3 {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.release-note {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+  color: #647067;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.release-note time {
+  color: var(--muted);
+  font-size: 11px;
 }
 
 /* 入力欄をひとつのパネルにまとめる */
