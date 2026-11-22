@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "shopping-list-v16";
+const CACHE_NAME = "shopping-list-v17";
 
 const FILES_TO_CACHE = [
   "./",
