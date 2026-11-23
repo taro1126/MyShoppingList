@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   color-scheme: light;
   --page: #f4f5ef;
   --surface: #ffffff;
@@ -442,6 +442,22 @@ button:focus-visible {
   stroke-linejoin: round;
 }
 
+.category-controls .edit-button,
+.item-controls .edit-button {
+  color: #66816d;
+}
+
+.category-controls .edit-button svg,
+.item-controls .edit-button svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .category-controls .copy-category:hover {
   background: var(--green-pale);
 }

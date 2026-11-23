@@ -99,6 +99,16 @@ function createIconButton(icon, label, action, className = "") {
 
     svg.append(front, back);
     button.replaceChildren(svg);
+  } else if (icon === "edit") {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+
+    const pencil = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    pencil.setAttribute("d", "M5 18.5l3.2-.7L18 8a2.1 2.1 0 0 0-3-3l-9.8 9.8L5 18.5z M13.8 6.2l4 4");
+    svg.append(pencil);
+    button.replaceChildren(svg);
   }
   button.setAttribute("aria-label", label);
   button.title = label;
@@ -269,7 +279,7 @@ function displayItems() {
         () => copyCategoryItems(category, categoryActions),
         "copy-category"
       ),
-      createIconButton("✎", "カテゴリ名を編集", () => renameCategory(category)),
+      createIconButton("edit", "カテゴリ名を編集", () => renameCategory(category), "edit-button"),
       createIconButton(
         "×",
         "カテゴリを削除",
@@ -390,7 +400,7 @@ function displayItems() {
       itemActions.className = "item-actions";
       itemActions.append(
         createIconButton(
-          "✎",
+          "edit",
           "商品名を編集",
           () => beginEditItem(item, row, name, itemActions),
           "edit-button"
