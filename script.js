@@ -14,6 +14,7 @@ let collapsedCategories = new Set();
 const UNDO_DURATION_MS = 5000;
 let pendingUndoItems = [];
 let undoExpiryTimer = null;
+let appToastTimer = null;
 const COMPLETED_HIDE_DELAY_MS = 1000;
 const pendingCompletedHide = new Set();
 const completedHideTimers = new Map();
@@ -80,6 +81,25 @@ function createButton(label, action, className = "") {
 
 function createIconButton(icon, label, action, className = "") {
   const button = createButton(icon, action, `icon-button ${className}`.trim());
+  if (icon === "copy") {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+
+    const front = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    front.setAttribute("x", "8");
+    front.setAttribute("y", "8");
+    front.setAttribute("width", "13");
+    front.setAttribute("height", "13");
+    front.setAttribute("rx", "2.5");
+
+    const back = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    back.setAttribute("d", "M16 8V5.5A2.5 2.5 0 0 0 13.5 3h-8A2.5 2.5 0 0 0 3 5.5v8A2.5 2.5 0 0 0 5.5 16H8");
+
+    svg.append(front, back);
+    button.replaceChildren(svg);
+  }
   button.setAttribute("aria-label", label);
   button.title = label;
   return button;
@@ -94,6 +114,80 @@ function createActionsToggle(label, actions) {
   button.setAttribute("aria-expanded", "false");
   button.title = `${label}の操作`;
   return button;
+}
+
+async function copyCategoryItems(category, actions) {
+  const text = items
+    .filter(item => item.category === category && !item.checked)
+    .map(item => item.name)
+    .join("\n");
+
+  try {
+    if (!text) {
+      showAppToast("コピーする商品がありません");
+      return;
+    }
+
+    const copied = await writeClipboardText(text);
+    showAppToast(copied ? "コピーしました" : "コピーできませんでした");
+  } finally {
+    closeCategoryActions(actions);
+  }
+}
+
+async function writeClipboardText(text) {
+  if (window.isSecureContext && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      // Clipboard APIが使えない場合は従来方式で再試行する。
+    }
+  }
+
+  const textarea = document.createElement("textarea");
+  const previousFocus = document.activeElement;
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.cssText =
+    "position:fixed;top:0;left:0;width:1px;height:1px;padding:0;opacity:0;font-size:16px;";
+  document.body.appendChild(textarea);
+
+  let copied = false;
+  try {
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+    copied = document.execCommand("copy");
+  } catch (error) {
+    copied = false;
+  } finally {
+    textarea.remove();
+    if (previousFocus instanceof HTMLElement) previousFocus.focus();
+  }
+
+  return copied;
+}
+
+function showAppToast(message) {
+  const toast = document.getElementById("appToast");
+  if (!toast) return;
+
+  if (appToastTimer) clearTimeout(appToastTimer);
+  toast.textContent = message;
+  toast.hidden = false;
+  appToastTimer = setTimeout(() => {
+    toast.hidden = true;
+    appToastTimer = null;
+  }, 2200);
+}
+
+function closeCategoryActions(actions) {
+  actions.classList.remove("actions-open");
+  actions.classList.add("actions-dismissed");
+  actions.parentElement
+    .querySelector(".actions-toggle")
+    ?.setAttribute("aria-expanded", "false");
 }
 
 // ドラッグハンドル作成
@@ -169,6 +263,12 @@ function displayItems() {
     const categoryActions = document.createElement("div");
     categoryActions.className = "category-actions";
     categoryActions.append(
+      createIconButton(
+        "copy",
+        "未購入商品をコピー",
+        () => copyCategoryItems(category, categoryActions),
+        "copy-category"
+      ),
       createIconButton("✎", "カテゴリ名を編集", () => renameCategory(category)),
       createIconButton(
         "×",
@@ -181,6 +281,15 @@ function displayItems() {
       createActionsToggle("カテゴリ", categoryActions),
       categoryActions
     );
+    header.addEventListener("pointerleave", () => {
+      categoryActions.classList.remove("actions-dismissed");
+    });
+    header.addEventListener("focusin", event => {
+      if (!categoryActions.contains(event.target) &&
+          !event.target.classList.contains("actions-toggle")) {
+        categoryActions.classList.remove("actions-dismissed");
+      }
+    });
 
     header.append(categoryHandle, title, categoryControls);
 

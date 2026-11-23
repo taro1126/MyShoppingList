@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "shopping-list-v17";
+const CACHE_NAME = "shopping-list-v20";
 
 const FILES_TO_CACHE = [
   "./",
@@ -7,7 +7,10 @@ const FILES_TO_CACHE = [
   "./style.css",
   "./script.js",
   "./manifest.json",
-  "./icon.svg"
+  "./icon.svg",
+  "./icons/apple-touch-icon.png",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png"
 ];
 
 // インストール時にアプリのファイルを保存

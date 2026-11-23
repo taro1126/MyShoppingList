@@ -426,6 +426,26 @@ button:focus-visible {
   font-size: 22px;
 }
 
+.category-controls .copy-category {
+  color: #66816d;
+  font-size: 18px;
+}
+
+.category-controls .copy-category svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.category-controls .copy-category:hover {
+  background: var(--green-pale);
+}
+
 .category-controls button:hover,
 .item-controls button:hover {
   background: #f2f4f1;
@@ -569,6 +589,28 @@ button:focus-visible {
   font-weight: 700;
 }
 
+.app-toast {
+  position: fixed;
+  z-index: 20;
+  top: max(20px, calc(env(safe-area-inset-top, 0px) + 12px));
+  left: 50%;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 10px 15px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: #33453a;
+  color: white;
+  box-shadow: 0 5px 18px rgba(30, 45, 30, 0.16);
+  font-size: 13px;
+  text-align: center;
+}
+
+.app-toast[hidden] {
+  display: none;
+}
+
 /* ドラッグ操作 */
 .drag-handle {
   display: flex;
@@ -619,8 +661,8 @@ button:focus-visible {
     transition: opacity 0.15s, visibility 0.15s;
   }
 
-  .category-header:hover .category-actions,
-  .category-header:focus-within .category-actions,
+  .category-header:hover .category-actions:not(.actions-dismissed),
+  .category-header:focus-within .category-actions:not(.actions-dismissed),
   .item-row:hover .item-actions,
   .item-row:focus-within .item-actions {
     opacity: 1;
