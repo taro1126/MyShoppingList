@@ -1015,6 +1015,13 @@ function handlePointerCancel(event) {
   clearDragStyles();
 }
 
+const helpDetails = document.querySelector(".help-details");
+document.addEventListener("click", event => {
+  if (helpDetails?.open && !helpDetails.contains(event.target)) {
+    helpDetails.open = false;
+  }
+});
+
 // 初期化
 const itemListElement = document.getElementById("itemList");
 

@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "shopping-list-v26";
+const CACHE_NAME = "shopping-list-v28";
 
 const FILES_TO_CACHE = [
   "./",
@@ -11,7 +11,19 @@ const FILES_TO_CACHE = [
   "./icons/apple-touch-icon-v1.0.5.png",
   "./icons/icon-192-v1.0.5.png",
   "./icons/icon-512-v1.0.5.png",
-  "./splash/launch-402x874-v1.0.6.png"
+  "./splash/launch-320x568-2x-v1.1.1.png",
+  "./splash/launch-360x780-3x-v1.1.1.png",
+  "./splash/launch-375x667-2x-v1.1.1.png",
+  "./splash/launch-375x812-3x-v1.1.1.png",
+  "./splash/launch-390x844-3x-v1.1.1.png",
+  "./splash/launch-393x852-3x-v1.1.1.png",
+  "./splash/launch-402x874-3x-v1.1.1.png",
+  "./splash/launch-414x896-2x-v1.1.1.png",
+  "./splash/launch-414x896-3x-v1.1.1.png",
+  "./splash/launch-420x912-3x-v1.1.1.png",
+  "./splash/launch-428x926-3x-v1.1.1.png",
+  "./splash/launch-430x932-3x-v1.1.1.png",
+  "./splash/launch-440x956-3x-v1.1.1.png",
 ];
 
 // インストール時にアプリのファイルを保存
