@@ -1,31 +1,24 @@
-
 {
-  "name": "お買い物リスト",
-  "short_name": "買い物リスト",
-  "description": "毎日のお買い物を管理するアプリ",
+  "name": "かごメモ",
+  "short_name": "かごメモ",
+  "description": "買い物リストを手軽に管理できるアプリ",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f4f5ef",
-  "theme_color": "#f4f5ef",
+  "background_color": "#fdf6ee",
+  "theme_color": "#fdf6ee",
   "icons": [
     {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "./icons/kagomemo-icon-192-v1.2.0.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-192-v1.0.5.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon-512-v1.0.5.png",
+      "src": "./icons/kagomemo-icon-512-v1.2.0.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
