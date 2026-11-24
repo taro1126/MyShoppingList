@@ -54,9 +54,13 @@
             </ul>
             <div class="app-version">
               <span>バージョン</span>
-              <strong>v1.2.0</strong>
+              <strong>v1.3.0</strong>
             </div>
             <h3>更新履歴</h3>
+            <div class="release-note">
+              <time datetime="2026-11-24">2026.11.24</time>
+              <span>v1.3.0 — Safariで初めて開いたときに、ホーム画面への追加方法と基本操作を案内。アプリ内フォントをZen Maru Gothicに統一。</span>
+            </div>
             <div class="release-note">
               <time datetime="2026-11-23">2026.11.23</time>
               <span>v1.2.0 — 正式名称を「かごメモ」に変更し、新しいアイコンと起動画面を設定。iPhoneの画面サイズ対応も拡大。</span>
@@ -102,6 +106,26 @@
     <button id="undoButton" type="button">元に戻す</button>
   </div>
   <div id="appToast" class="app-toast" role="status" aria-live="polite" hidden></div>
+
+  <dialog id="safariTutorial" class="safari-tutorial" aria-labelledby="safariTutorialTitle" aria-describedby="safariTutorialDescription">
+    <button id="safariTutorialClose" class="tutorial-close" type="button" aria-label="チュートリアルを閉じる">×</button>
+    <p class="tutorial-eyebrow">はじめての方へ</p>
+    <h2 id="safariTutorialTitle">かごメモをホーム画面に追加</h2>
+    <p id="safariTutorialDescription" class="tutorial-description">ホーム画面に追加すると、次からアイコンをタップしてすぐに開けます。</p>
+
+    <ol class="tutorial-steps">
+      <li>Safariの共有ボタンをタップ</li>
+      <li>「ホーム画面に追加」を選ぶ</li>
+      <li>右上の「追加」をタップ</li>
+    </ol>
+
+    <div class="tutorial-tip">
+      <strong>基本の使い方</strong>
+      <p>商品を入力して追加し、買ったらチェック。商品名をタップすると編集・削除できます。</p>
+    </div>
+
+    <button id="safariTutorialDone" class="tutorial-done" type="button">使いはじめる</button>
+  </dialog>
 
   <script src="./script.js"></script>
 

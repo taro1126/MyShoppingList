@@ -1022,6 +1022,52 @@ document.addEventListener("click", event => {
   }
 });
 
+const safariTutorial = document.getElementById("safariTutorial");
+const SAFARI_TUTORIAL_DISMISSED_KEY = "kagomemoSafariTutorialDismissed";
+
+function shouldShowSafariTutorial() {
+  const userAgent = navigator.userAgent;
+  const isIOS = /iPhone|iPad|iPod/i.test(userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isSafari = /Safari/i.test(userAgent) &&
+    !/(CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo|GSA)/i.test(userAgent);
+  const isStandalone = navigator.standalone === true ||
+    window.matchMedia("(display-mode: standalone)").matches;
+
+  if (!isIOS || !isSafari || isStandalone) return false;
+
+  try {
+    return localStorage.getItem(SAFARI_TUTORIAL_DISMISSED_KEY) !== "true";
+  } catch (error) {
+    return false;
+  }
+}
+
+if (safariTutorial) {
+  const dismissSafariTutorial = () => safariTutorial.close();
+
+  document.getElementById("safariTutorialClose")
+    .addEventListener("click", dismissSafariTutorial);
+  document.getElementById("safariTutorialDone")
+    .addEventListener("click", dismissSafariTutorial);
+
+  safariTutorial.addEventListener("click", event => {
+    if (event.target === safariTutorial) dismissSafariTutorial();
+  });
+
+  safariTutorial.addEventListener("close", () => {
+    try {
+      localStorage.setItem(SAFARI_TUTORIAL_DISMISSED_KEY, "true");
+    } catch (error) {
+      // チュートリアル表示に支障が出ないよう、保存できない場合は無視する。
+    }
+  });
+
+  if (shouldShowSafariTutorial() && typeof safariTutorial.showModal === "function") {
+    requestAnimationFrame(() => safariTutorial.showModal());
+  }
+}
+
 // 初期化
 const itemListElement = document.getElementById("itemList");
 
