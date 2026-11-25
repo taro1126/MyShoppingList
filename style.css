@@ -953,4 +953,26 @@ button:focus-visible {
   .page-subtitle {
     margin-left: 0;
   }
+
+  .category-disclosure {
+    display: grid;
+    place-items: center;
+    color: transparent;
+    font-size: 0;
+  }
+
+  .category-disclosure::before {
+    width: 0;
+    height: 0;
+    border-top: 6px solid #91a596;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+    content: "";
+    transform-origin: center;
+    transition: transform 0.12s ease;
+  }
+
+  .category-disclosure.is-collapsed::before {
+    transform: rotate(-90deg);
+  }
 }

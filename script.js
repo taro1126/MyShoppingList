@@ -250,6 +250,7 @@ function displayItems() {
 
     const disclosure = document.createElement("span");
     disclosure.className = "category-disclosure";
+    disclosure.classList.toggle("is-collapsed", isCollapsed);
     disclosure.textContent = isCollapsed ? "▶" : "▼";
 
     const titleText = document.createElement("span");
