@@ -355,6 +355,48 @@ body {
   font-size: 11px;
 }
 
+.release-history {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+}
+
+.release-history > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #647067;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+
+.release-history > summary::-webkit-details-marker {
+  display: none;
+}
+
+.release-history > summary::after {
+  color: var(--green-dark);
+  content: "＋";
+  font-size: 16px;
+  line-height: 1;
+}
+
+.release-history[open] > summary::after {
+  content: "−";
+}
+
+.release-history > summary:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+.release-history-list {
+  padding-top: 3px;
+}
+
 /* 入力欄をひとつのパネルにまとめる */
 .input-area {
   display: grid;
