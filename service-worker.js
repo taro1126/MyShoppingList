@@ -1,4 +1,4 @@
-const CACHE_NAME = "kagomemo-v1.3.0-r1";
+const CACHE_NAME = "kagomemo-v1.3.1-r1";
 
 const FILES_TO_CACHE = [
   "./",

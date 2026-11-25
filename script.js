@@ -1099,7 +1099,23 @@ itemInput.addEventListener("paste", event => {
 
   if (!text || !/[\r\n]/.test(text)) return;
 
+  const names = text
+    .split(/\r?\n/)
+    .map(name => name.trim())
+    .filter(name => name !== "");
+
+  if (names.length === 0) return;
+
   event.preventDefault();
+
+  if (names.length > 1 &&
+      !confirm(`商品を${names.length}件まとめて追加します。よろしいですか？`)) {
+    const start = itemInput.selectionStart ?? itemInput.value.length;
+    const end = itemInput.selectionEnd ?? start;
+    itemInput.setRangeText(text, start, end, "end");
+    return;
+  }
+
   addItemsFromText(text);
 });
 
